@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import os
 import sys
+import shutil
 import libtbx.load_env
 from libtbx import easy_run
 
@@ -29,12 +30,18 @@ def run():
       and not libtbx.env.has_module('phenix'):
       skipped.append(script)
       continue
+    if script == 'doc_model_building_read_files.py':
+      r = easy_run.fully_buffered('phenix.setup_tutorial tutorial_name=model-building-scripting')
+      os.chdir('model-building-scripting')
     r = easy_run.fully_buffered(cmd)
     results.append([script, r.return_code, r.stdout_lines, r.stderr_lines])
     # remove files once done
-    # (the scripts sometimes on the same input files, so need to delete each time)
+    # (the scripts sometimes operate on the same input files, so need to delete each time)
     for f in os.listdir(tmp_dir):
-      os.remove(os.path.join(tmp_dir, f))
+      if os.path.isdir(os.path.join(tmp_dir, f)):
+        shutil.rmtree(os.path.join(tmp_dir, f))
+      else:
+        os.remove(os.path.join(tmp_dir, f))
   #
   # go back up to "regression" and delete tmp directory
   os.chdir(root_dir)
