@@ -1,0 +1,91 @@
+{% extends "phenix/header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+
+
+<div class="col-sm-9">
+<!-- DO NOT EDIT ANYTHING ABOVE!!!! -->
+<!----------------------- EDIT START ---------------------------->
+
+<h2><center>Fitting a flexible ligand</center></h2>
+
+<p class="lead mt-4">Learn how to fit a flexible ligand into density.</p>
+
+<p>First, let's set up the example data (described in more detail <a href="{% url 'doc_model_building_read_files_phenix' %}">here</a>):</p>
+
+<p>Get the files from the Phenix regression directory and change into the new folder:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>phenix.setup_tutorial tutorial_name=model-building-scripting
+cd model-building-scripting</code></pre>
+
+<pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
+dm = DataManager()             # Initialize the DataManager and call it dm
+dm.set_overwrite(True)         # Overwrite files with the same name
+mmm = dm.get_map_model_manager(        # getting a map_model_manager
+  model_file="boxed_ligand_map.pdb",   # model file
+  map_files="boxed_ligand_map.ccp4")   # map file
+mmm.set_resolution(3.0)    # working (nominal) resolution of map
+mmm.set_experiment_type('xray')   # define experiment type
+mmm_saved = mmm.deep_copy()   # save a copy of the map_model_manager
+</code></pre>
+
+<p>Let’s fit a ligand into some density in a map using the fit_ligand model-building tool. In the section above we read in a map and model, where the map contains density for a ligand. Let’s use the map_model_manager <code>mmm</code> containing this map and model, and fit a ligand into the unmodelled density.</p>
+
+<p>Let’s get rid of any part of the model that is outside the part of the map that is present (this modifies the map_model_manager <code>mmm</code> permanently, so it’s a good thing we have saved a copy):</p>
+
+<pre class="codeDL"><code>mmm.remove_model_outside_map(boundary=1.5)    #  remove model outside map
+</code></pre>
+
+<p>Now let’s get a model-building object:</p>
+
+<pre class="codeDL"><code>build = mmm.model_building()  # get a model-building object
+</code></pre>
+
+<p>And let’s fit a ligand (ATP) into the map:</p>
+
+<pre class="codeDL"><code>fitted_ligand = build.fit_ligand(ligand_code = 'ATP')   # fit the ligand
+</code></pre>
+
+<p>The first thing that happens is the fit_ligand tool generates a generic ATP molecule and its associated restraints. (If you wanted to, you could have supplied these directly with the keywords ligand_model and restraints_object, and you would have read in the ligand_model and restraints_object with the DataManager dm.)</p>
+
+<p>The next thing that happens is the fit_ligand tool figures out where to place the ATP, and what bonds to rotate to fit the ATP into the density. Your fitted ligand is in fitted_ligand and you can write it out if you want with the DataManager dm:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(fitted_ligand, 'fitted_ligand.pdb')  # Fitted ligand
+</code></pre>
+
+<p>If you didn’t save the fitted ligand when you ran the build.fit_ligand command, you can still get it:</p>
+
+<pre class="codeDL"><code>result = build.get_best_result()   # get the best fitted ligand result object
+fitted_ligand = result.model   # the fitted ligand as a model
+</code></pre>
+
+<p>You can also write out the working map and model (the model that was used to mask the map):</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'working_model.pdb')  # Working model
+dm.write_real_map_file(build.map_manager(), 'working_map.ccp4')# Working map
+</code></pre>
+
+<p>Have a look at fitted_ligand.pdb, working_model.pdb, and 'working_map.ccp4 with Coot or Chimera. Note that this map is a part of an xray map and so the unit cell is not a rectangular box (it is hexagonal in this case).</p>
+
+
+<!----------------------- EDIT END ---------------------------->
+<!-- DO NOT EDIT ANYTHING BELOW!!!! -->
+</div> <!-- end col-sm-9 -->
+
+<!-- automatic table of contents
+     located in the sidebar; will move to the top on a small screen -->
+<div class="col-sm-3">
+  <nav id="toc" data-toggle="toc"></nav>
+</div> <!-- end col-sm-3 -->
+
+</div> <!-- end row -->
+
+</div> <!-- end container -->
+
+{% endblock %}

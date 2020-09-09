@@ -22,6 +22,7 @@ def run():
 
   results = list()
   skipped = list()
+  r1 = easy_run.fully_buffered('phenix.setup_tutorial tutorial_name=model-building-scripting')
   # loop through all .py files in "examples"
   for script in os.listdir(examples_dir):
     cmd = 'libtbx.python ' + os.path.join(examples_dir, script)
@@ -30,21 +31,26 @@ def run():
       and not libtbx.env.has_module('phenix'):
       skipped.append(script)
       continue
-    if script == 'doc_model_building_read_files.py':
-      r = easy_run.fully_buffered('phenix.setup_tutorial tutorial_name=model-building-scripting')
+    if script in ['doc_model_building_read_files.py', 'doc_fit_ligand.py',
+      'doc_model_building_1.py'] :
       os.chdir('model-building-scripting')
     r = easy_run.fully_buffered(cmd)
     results.append([script, r.return_code, r.stdout_lines, r.stderr_lines])
+
     # remove files once done
     # (the scripts sometimes operate on the same input files, so need to delete each time)
     for f in os.listdir(tmp_dir):
-      if os.path.isdir(os.path.join(tmp_dir, f)):
-        shutil.rmtree(os.path.join(tmp_dir, f))
+      if f == 'model-building-scripting':
+        pass
+      #if os.path.isdir(os.path.join(tmp_dir, f)):
+      #  shutil.rmtree(os.path.join(tmp_dir, f))
       else:
         os.remove(os.path.join(tmp_dir, f))
+    os.chdir(tmp_dir)
   #
   # go back up to "regression" and delete tmp directory
   os.chdir(root_dir)
+  shutil.rmtree(os.path.join(tmp_dir, 'model-building-scripting'))
   os.rmdir(tmp_dir)
 
   # print info if fail or success; print stderr if failed
