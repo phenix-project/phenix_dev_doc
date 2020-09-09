@@ -1,0 +1,144 @@
+{% extends "phenix/header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+
+
+<div class="col-sm-9">
+<!-- DO NOT EDIT ANYTHING ABOVE!!!! -->
+<!----------------------- EDIT START ---------------------------->
+
+<h2><center>Building a model into density</center></h2>
+
+<p class="lead mt-4">Learn how to build a model into some density and how to automatically extend the newly built chain.</p>
+
+<h3 class="mt-3">Building a model</h3>
+
+<p>First, let's set up the example data (described in more detail <a href="{% url 'doc_model_building_read_files_phenix' %}">here</a>):</p>
+
+<p>Get the files from the Phenix regression directory and change into the new folder:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>phenix.setup_tutorial tutorial_name=model-building-scripting
+cd model-building-scripting</code></pre>
+
+<pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
+dm = DataManager()             # Initialize the DataManager and call it dm
+dm.set_overwrite(True)         # Overwrite files with the same name
+</code></pre>
+
+<p>Let’s build a model into some density in a map using the build model-building tool. We can read in a map file from the model-building regression directory (no model this time):</p>
+
+<pre class="codeDL"><code>mmm = dm.get_map_model_manager( model_file = None,       # getting a map_model_manager
+    map_files="short_model_box.ccp4")   # map file
+</code></pre>
+
+<p>Let’s also tell the map_model_manager  mmm about the resolution and experiment type (cryo_em or xray).</p>
+
+<pre class="codeDL"><code>mmm.set_resolution(3.0)    # working (nominal) resolution of map
+mmm.set_experiment_type('xray')   # define experiment type
+</code></pre>
+
+<p>Let’s get a model_building object:</p>
+
+<pre class="codeDL"><code>build = mmm.model_building()  # get a model-building object
+</code></pre>
+
+<p>...and  set the number of processors to use (whatever number you have):</p>
+
+<pre class="codeDL"><code>build.set_defaults(nproc = 4)   # use 4 processors
+</code></pre>
+
+<p>And now let’s build into this map:</p>
+
+<pre class="codeDL"><code>build.build()    # build a model into current map
+</code></pre>
+
+<p>We can write out the resulting model and the map that was used:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'built_model.pdb')  # Working model
+dm.write_real_map_file(build.map_manager(), 'build_map.ccp4')# Working map
+</code></pre>
+
+<p>Have a look at this model and map in Coot or Chimera. You can see that three helices were built but there is still more to be built. In particular, the helix starting at residue 1 of chain U appears to be suitable for extension in the N-terminal direction. Let’s do this next.</p>
+
+<!--                                                 -->
+<h3 class="mt-3">Extending a chain</h3>
+
+<p>Let’s extend one of the chains in the model we just built with the build tool. We can use the extend_reverse() method to create an extension in the N-terminal direction starting at residue 1 of chain U (it won’t insert it yet).</p>
+
+<pre class="codeDL"><code>build.extend_reverse(chain_id = "U", first_resno_after_extend = 1)  # extend
+</code></pre>
+
+<p>We can get just the extension if we want with the command:</p>
+
+<pre class="codeDL"><code>result = build.get_best_result()   # get the best extension result object
+insertion_model = result.model   # the extension as a model
+</code></pre>
+
+<p>Let’s insert the extension:</p>
+
+<pre class="codeDL"><code>build.insert_extension()   # insert best extension result object
+</code></pre>
+
+<p>We can refine the model with the inserted extension:</p>
+
+<pre class="codeDL"><code>build.refine()   # insert best extension result object
+</code></pre>
+
+<p>And write out the resulting model and the map that was used:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'extended_model.pdb')  # Working model
+dm.write_real_map_file(build.map_manager(), 'extended_map.ccp4')# Working map
+</code></pre>
+
+<p>This results in more residues at the N-terminal end. If some do not look very good you can remove them with a pair of commands like this:</p>
+
+<pre class="codeDL"><code>new_model = build.model().apply_selection_string(    # apply a selection
+   'not (chain U and resseq 1:1)'  )  # remove residue 1 from chain U
+build.set_model(new_model)   # replace existing model with new_model
+</code></pre>
+
+<p>You can write out your new model:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'extended_model_trimmed.pdb')  # new model
+</code></pre>
+
+<p>If you want, you can get a map_model_manager back from the build model-building object with:</p>
+
+<pre class="codeDL"><code>new_mmm = build.as_map_model_manager()  # return a map_model_manager object
+</code></pre>
+
+
+<p>In this example we extended backwards from the N-terminus of the model. You can also extend forwards using the command build.extend.</p>
+
+<!--
+
+<p>Also in these examples we built a protein model. You can build and extend an RNA or DNA model as well. You specify the chain type when building with:</p>
+
+<pre class="codeDL"><code>build.set_defaults(chain_type = 'RNA')
+</code></pre>
+
+<p>or a similar command for DNA. The chain extensions just keep the same chain type as the part that is already present.</p>
+
+-->
+
+<!----------------------- EDIT END ---------------------------->
+<!-- DO NOT EDIT ANYTHING BELOW!!!! -->
+</div> <!-- end col-sm-9 -->
+
+<!-- automatic table of contents
+     located in the sidebar; will move to the top on a small screen -->
+<div class="col-sm-3">
+  <nav id="toc" data-toggle="toc"></nav>
+</div> <!-- end col-sm-3 -->
+
+</div> <!-- end row -->
+
+</div> <!-- end container -->
+
+{% endblock %}

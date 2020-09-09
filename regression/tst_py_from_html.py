@@ -32,7 +32,7 @@ def run():
       skipped.append(script)
       continue
     if script in ['doc_model_building_read_files.py', 'doc_fit_ligand.py',
-      'doc_model_building_1.py'] :
+      'doc_model_building_1.py', 'doc_model_building_2.py'] :
       os.chdir('model-building-scripting')
     r = easy_run.fully_buffered(cmd)
     results.append([script, r.return_code, r.stdout_lines, r.stderr_lines])

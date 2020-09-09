@@ -1,0 +1,93 @@
+{% extends "phenix/header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+
+
+<div class="col-sm-9">
+<!-- DO NOT EDIT ANYTHING ABOVE!!!! -->
+<!----------------------- EDIT START ---------------------------->
+
+<h2><center>Fitting a loop</center></h2>
+
+<p class="lead mt-4">Learn how to fill in a gap in a model with the fit_loop tool.</p>
+
+<p>Let’s set up a map and model from the phenix_regression directory:</p>
+
+<pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
+dm = DataManager()             # Initialize the DataManager and call it dm
+dm.set_overwrite(True)         # Overwrite files with the same name
+</code></pre>
+
+<pre class="codeDL"><code>mmm = dm.get_map_model_manager(        # getting a map_model_manager
+  model_file="short_model_main_chain_box.pdb",   # model file
+  map_files="short_model_box.ccp4")   # map file
+</code></pre>
+
+<p>We can fill in the resolution and experiment type and get a model_building object:</p>
+
+<pre class="codeDL"><code>mmm.set_resolution(3)                 # resolution is 3 A
+mmm.set_experiment_type('cryo_em')    # it is a cryo-EM map
+build = mmm.model_building()          # get a model-building object
+</code></pre>
+
+<p>Let’s remove some residues in the model to create a need for a loop (we don’t have to do this, but it makes it clearer):</p>
+
+<pre class="codeDL"><code>new_model = build.model().apply_selection_string(    # apply a selection
+   ' not (chain A and resseq 516:519)'  )  # remove residues 516-519 chain A
+build.set_model(new_model)   # replace existing model with new_model
+</code></pre>
+
+<p>You can read about how to specify selections in the cctbx selections documentation.  The apply_selection_string method is part of a model object and it applies the selection you specify and returns a new model based on that selection.</p>
+
+<p>Let’s write out the working model:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'model_without_loop.pdb')  # new model
+</code></pre>
+
+<p>We can choose which methods to use in loop fitting. Let’s use resolve loop fitting:</p>
+
+<pre class="codeDL"><code>build.set_defaults(fit_loop_methods=['resolve'])    #choose just resolve loop fitting
+</code></pre>
+
+<p>And let’s fit a loop. If were are already residues where the loop is to go (between residues 515 and 520) they would be removed before the loop is built:</p>
+
+
+<pre class="codeDL"><code>fit_loop_model=build.fit_loop(   #  fit a loop
+     chain_id="A",               # chain ID
+     loop_sequence = 'RVLD',        # Sequence of residues in loop
+     last_resno_before_loop=515,    #  Residue number just before loop
+     first_resno_after_loop=520,)    #  Residue number just after loop
+</code></pre>
+
+<p>Let’s insert the loop:</p>
+
+<pre class="codeDL"><code>build.insert_fitted_loop()    # insert the loop
+</code></pre>
+
+<p>Finally let’s write out the new model:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'fitted_loop_model.pdb')  # new model
+</code></pre>
+
+
+<!----------------------- EDIT END ---------------------------->
+<!-- DO NOT EDIT ANYTHING BELOW!!!! -->
+</div> <!-- end col-sm-9 -->
+
+<!-- automatic table of contents
+     located in the sidebar; will move to the top on a small screen -->
+<div class="col-sm-3">
+  <nav id="toc" data-toggle="toc"></nav>
+</div> <!-- end col-sm-3 -->
+
+</div> <!-- end row -->
+
+</div> <!-- end container -->
+
+{% endblock %}
