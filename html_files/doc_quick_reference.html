@@ -445,12 +445,12 @@ build.map_manager().find_map_symmetry(symmetry = "D7")  # find symmetry in map
 build.map_manager().ncs_object().display_all() # summary
 model_no_ncs = build.model().apply_selection_string("chain A") #
 print (model_no_ncs)#  make sure we got one chain
-
+model_ncs = build.apply_ncs(model = model_no_ncs) # apply ncs to model_no_ncs
+print (model_ncs)  # now we have 14 chains
 </code></pre>
 
 <!--
-  model_ncs = build.apply_ncs(model = model_no_ncs) # apply ncs to model_no_ncs
-print (model_ncs)  # now we have 14 chains
+
 -->
 
 <!-- ----------------------------------------------------------------------- -->
