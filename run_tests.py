@@ -3,7 +3,14 @@ from libtbx import test_utils
 import libtbx.load_env
 
 tst_list = [
-  "$D/regression/tst_py_from_html.py"
+  "$D/regression/tst_doc_model_building_read_files.py",
+  "$D/regression/tst_doc_fit_ligand.py",
+  "$D/regression/tst_doc_model_building_1.py",
+  "$D/regression/tst_doc_model_building_2.py",
+  "$D/regression/tst_doc_model_building_3.py",
+  "$D/regression/tst_doc_model_building_morphing.py",
+  "$D/regression/tst_doc_model_building_sequence.py",
+  "$D/regression/tst_doc_quick_reference.py",
   ]
 
 def run():

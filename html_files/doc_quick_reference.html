@@ -1,0 +1,473 @@
+{% extends "phenix/header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+
+
+<div class="col-sm-9">
+<!-- DO NOT EDIT ANYTHING ABOVE!!!! -->
+<!----------------------- EDIT START ---------------------------->
+
+<h2><center>Phenix/CCTBX quick reference</center></h2>
+
+<p class="lead mt-4">This section summarizes some commonly-used functions in Phenix and cctbx.</p>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-3">Setup</h3>
+
+<h6 class="mt-4">Copy tutorial data</h6>
+<pre class="CodeGreen" style="font-size: 12px"><code>phenix.setup_tutorial tutorial_name=model-building-scripting</code></pre>
+
+<h6 class="mt-4">Set up a DataManager</h6>
+<pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
+dm = DataManager()             # Initialize the DataManager and call it dm
+dm.set_overwrite(True)         # Overwrite files with the same name
+</code></pre>
+
+<h6 class="mt-4">Show all the keywords and summary documentation for a function</h6>
+<pre class="codeDL"><code>help(dm)
+help(dm.get_map_model_manager)
+</code></pre>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Reading/writing files and creating managers</h3>
+
+<h6 class="mt-4">Get a map_model manager from a map and model</h6>
+<pre class="codeDL"><code>mmm_ligand = dm.get_map_model_manager(        # get map_model manager
+  model_file="boxed_ligand_map.pdb",   # model file
+  map_files="boxed_ligand_map.ccp4")   # map file
+</code></pre>
+
+<h6 class="mt-4">Read some models</h6>
+<pre class="codeDL"><code>model_for_morphing = dm.get_model("short_model_box_for_morph.pdb") # model
+model_for_sequence = dm.get_model("short_model_main_chain_box.pdb") # model
+</code></pre>
+
+<h6 class="mt-4">Make a copy of a model so that when model is shifted we have the original model</h6>
+<pre class="codeDL"><code>original_model_for_morphing = model_for_morphing.deep_copy()  # copy of model
+</code></pre>
+
+<h6 class="mt-4">Read in a model of atp</h6>
+<pre class="codeDL"><code>model_atp = dm.get_model("atp.pdb")  # model file
+</code></pre>
+
+<h6 class="mt-4">Read in a restraints file</h6>
+<pre class="codeDL"><code>dm.process_restraint_file("atp.cif")  # Set up restraints
+restraints_atp=dm.get_restraint("atp.cif") # get a restraints object
+</code></pre>
+
+<h6 class="mt-4">Read in map and get map_managers</h6>
+<pre class="codeDL"><code>mm = dm.get_real_map("boxed_ligand_map.ccp4")   # map file
+mm_for_morphing = dm.get_real_map("short_model_box.ccp4")   # another map file
+dm.remove_real_map("short_model_box.ccp4")   # remove map from data_manager
+</code></pre>
+
+<h6 class="mt-4">Get a map_model manager from a map only</h6>
+<pre class="codeDL"><code>mmm_map_only = dm.get_map_model_manager(        # get map_model manager
+    map_files="short_model_box.ccp4")   # map file
+</code></pre>
+
+<h6 class="mt-4">Set defaults in a map_manager</h6>
+<pre class="codeDL"><code>mm.set_wrapping(False)   # do not wrap (do not extend outside supplied map)
+mm.set_experiment_type("xray")   # alternatives are cryo_em or neutron
+mm.set_scattering_table("n_gaussian")   # electron/neutron/wk1995/it1992
+</code></pre>
+
+<h6 class="mt-4">Read in reconstruction symmetry (“ncs”) and make an ncs object:</h6>
+<pre class="codeDL"><code>ncs_d7 = dm.get_ncs_spec("D7.ncs_spec")   # reconstruction symmetry file
+</code></pre>
+
+<h6 class="mt-4">Make a map_model_manager</h6>
+<pre class="codeDL"><code>map_manager = mm_for_morphing.deep_copy()  # use a separate copy
+model = model_for_morphing.deep_copy()    # model, also a separate copy
+from iotbx.map_model_manager import map_model_manager # import manager
+mmm = map_model_manager(map_manager = map_manager, model = model)   #
+</code></pre>
+
+<h6 class="mt-4">Make a map_model_manager with reconstruction symmetry</h6>
+<pre class="codeDL"><code>map_manager = mm_for_morphing.deep_copy()  # use a separate copy
+model = model_for_morphing.deep_copy()    # model, also a separate copy
+from iotbx.map_model_manager import map_model_manager # import manager
+mmm_ncs = map_model_manager(map_manager = map_manager, model = model, #
+ ncs_object = ncs_d7)   # reconstruction symmetry
+</code></pre>
+
+<h6 class="mt-4">Shift a model to match origin shift in a map_manager</h6>
+<pre class="codeDL"><code>model_1 = model.deep_copy()  # copy of a model
+map_manager.shift_model_to_match_map(model_1)  # shift model_1 to match map
+</code></pre>
+
+<h6 class="mt-4">Make a copy of a map_model_manager (deep copy where everything is separate from origin)</h6>
+<pre class="codeDL"><code>mmm_copy = mmm.deep_copy() # deep copy of a map-model manager
+</code></pre>
+
+<h6 class="mt-4">Set defaults in a map_model_manager</h6>
+<pre class="codeDL"><code>mmm.set_resolution(3)   # set default resolution to 3 A
+mmm.set_experiment_type("xray")   # alternatives are cryo_em/neutron
+</code></pre>
+
+<h6 class="mt-4">Generate a model map using a  map_model_manager</h6>
+<pre class="codeDL"><code>model = dm.get_model("structure_search_target.pdb")    # read in a model
+model_mmm = dm.get_map_model_manager(  # getting a map_model_manager
+    model_file = "structure_search_target.pdb",)   # model to read in
+model_mmm.generate_map(d_min=3)        #   generate map to resolution of 3 A
+</code></pre>
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Converting from one type of manager to another</h3>
+
+<h6 class="mt-4">Get a model_building object from a map_model_manager</h6>
+<pre class="codeDL"><code>build = mmm.model_building()   # get model_building object
+</code></pre>
+
+<h6 class="mt-4">Get a map_model_manager from a model_building object</h6>
+<pre class="codeDL"><code>new_mmm = build.as_map_model_manager() # get map-model manager
+</code></pre>
+
+<h6 class="mt-4">Get a map_manager or model from a model_building object or map_model_manager</h6>
+<pre class="codeDL"><code>mm = build.map_manager()   # map_manager from model-building object
+model = build.model()      # model from model-building object
+mm = mmm.map_manager()     # map_manager from map-model manager
+model = mmm.model()        # model from map-model manager
+</code></pre>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Working with map_managers</h3>
+
+<h6 class="mt-4">Tell DataManager to forget any previously-read map from a file, then read in map_manager from that file.</h6>
+<pre class="codeDL"><code>for file_name in dm.get_real_map_names():   # list of previously read maps
+  dm.remove_real_map(file_name)   # forget previous reads
+mm = dm.get_real_map("boxed_ligand_map.ccp4")   # read in map file
+</code></pre>
+
+<h6 class="mt-4">Deep-copy map_manager</h6>
+<pre class="codeDL"><code>copy_of_mm = mm.deep_copy()  #  Separate copy of map_data
+</code></pre>
+
+<h6 class="mt-4">Shift origin of map_manager object to place start of map data that is present at (0, 0, 0). Note: This is done automatically by map_model_manager if one is used.</h6>
+<pre class="codeDL"><code>mm.shift_origin() # shift origin to (0,0,0)
+</code></pre>
+
+<h6 class="mt-4">Shift origin of map_manager object back where it was originally</h6>
+<pre class="codeDL"><code>mm1 = copy_of_mm.deep_copy()   # map manager to work with
+mm1.shift_origin_to_match_original()  # put origin back where it was
+</code></pre>
+
+<h6 class="mt-4">List all methods available for a map_manager</h6>
+<pre class="codeDL"><code>dir(mm)  # list all the methods available for mm
+</code></pre>
+
+<h6 class="mt-4">Set resolution, experiment_type, scattering_table</h6>
+<pre class="codeDL"><code>mm.set_resolution(3)   # nominal resolution is 3 A;
+mm.set_experiment_type("xray")  # alternatives are cryo_em/neutron
+mm.set_scattering_table("n_gaussian")   # electron/neutron/wk1995/it1992
+</code></pre>
+
+<h6 class="mt-4">Get origin shift in A (shift of position since map was read in)</h6>
+<pre class="codeDL"><code>shift_cart = mm.shift_cart() #   shift since start
+</code></pre>
+
+<h6 class="mt-4">Get position of original origin in grid units (same as how much to shift map to overlay original)</h6>
+<pre class="codeDL"><code>origin_shift_grid_units = mm.origin_shift_grid_units #  origin pos
+</code></pre>
+
+<h6 class="mt-4">Get gridding of working map (the part that is present)</h6>
+<pre class="codeDL"><code>n_real = mm.map_data().all()  #  gridding of working map
+</code></pre>
+
+<h6 class="mt-4">Get wrapping of map (wrapped means infinite, repeating with gridding of map. Map must be full size (not boxed)</h6>
+<pre class="codeDL"><code>wrapping = mm.wrapping()  #  wrapping of working map
+</code></pre>
+
+<h6 class="mt-4">Determine if map is full size, if map is zero-based, if map is consistent with wrapping</h6>
+<pre class="codeDL"><code>is_full_size = mm.is_full_size()  #  is map full size (not boxed)
+is_zero_based = mm.origin_is_zero()  #  is zero-based
+is_consistent_with_wrapping = mm.is_consistent_with_wrapping() # ok to wrap
+</code></pre>
+
+<h6 class="mt-4">Determine if map_manager is similar to another one (same gridding, origin)</h6>
+<pre class="codeDL"><code>is_similar = mm.is_similar(mm1)  # map_managers are similar
+</code></pre>
+
+<h6 class="mt-4">Get map_data (flex array) from map_manager object</h6>
+<pre class="codeDL"><code>map_data = mm.map_data()  #  map_data
+</code></pre>
+
+<h6 class="mt-4">Customized copy of map_manager object with new data</h6>
+<pre class="codeDL"><code>some_map_data = mm.map_data() + 5 #  some map_data
+new_mm = mm.customized_copy(map_data = some_map_data)  # new map manager
+</code></pre>
+
+<h6 class="mt-4">Set values of data in existing map_manager or zero out a map_manager</h6>
+<pre class="codeDL"><code>new_mm.set_map_data(map_data = map_data)  # new_mm data is now map_data
+                # Note:  change new_mm and you are also changing map_data
+new_mm.initialize_map_data()  # set values of map_data in new_mm to zero
+</code></pre>
+
+<h6 class="mt-4">Get full size version of map (zeros outside existing region)</h6>
+<pre class="codeDL"><code>full_size = mm.as_full_size_map()  # full size version padded with zero
+</code></pre>
+
+<h6 class="mt-4">Resample map on new grid (new grid must be multiple of existing if origin_shift_grid_units is not (0,0,0)</h6>
+<pre class="codeDL"><code>n_real = mm.map_data().all()  # current gridding
+new_n_real = [n_real[0],n_real[1],n_real[2] * 2]  # double gridding along c
+resampled = mm.resample_on_different_grid(new_n_real)  # resample
+</code></pre>
+
+<h6 class="mt-4">Get correlation to another map</h6>
+<pre class="codeDL"><code>cc = mm.cc_to_other_map_manager(new_mm) # map correlation to other map
+</code></pre>
+
+<h6 class="mt-4">Resolution filter, gaussian filter, binary filter:</h6>
+<pre class="codeDL"><code>low_res_map =  mm.resolution_filter(10)  # 10 A map
+gaussian_blur = mm.gaussian_filter(1) # blur with 1 A Gaussian
+binary_filtered = mm.binary_filter(threshold = 0.5)  # set value to 1 if
+                                # average of 27 in box around this point > 0.5
+</code></pre>
+
+<h6 class="mt-4">Create binary mask around density, around edges, around atoms (does not apply mask, just creates it)</h6>
+<pre class="codeDL"><code>mm.create_mask_around_density(resolution = 3) # mask around density
+mm.create_mask_around_edges(soft_mask_radius = 3) # mask around edges
+model = dm.get_model("structure_search_target.pdb")  # get a model
+mm.create_mask_around_atoms(model = model)  # radius=max(resolution,3)
+</code></pre>
+
+<h6 class="mt-4">Make the mask a soft mask</h6>
+<pre class="codeDL"><code>mm.soft_mask()  #  make the mask a soft mask. Default radius is resolution
+</code></pre>
+
+<h6 class="mt-4">Apply mask to working map or get mask as a map_manager</h6>
+<pre class="codeDL"><code>mm.apply_mask()  # apply the mask to working map (changes working map)
+mask_as_map_manager = mm.get_mask_as_map_manager()   # mask as a map manager
+</code></pre>
+
+<h6 class="mt-4">Get map values at coordinates</h6>
+<pre class="codeDL"><code>sites_cart = model.get_sites_cart()  #  some coordinates
+density_values = mm.density_at_sites_cart(sites_cart)  # density at coords
+</code></pre>
+
+<h6 class="mt-4">Normalize the map (set mean to zero and sd to 1)</h6>
+<pre class="codeDL"><code>mm.set_mean_zero_sd_one()  #  normalize map
+</code></pre>
+
+<h6 class="mt-4">Find reconstruction symmetry in map</h6>
+<pre class="codeDL"><code>mm.find_map_symmetry() #  find map symmetry
+ncs_obj = mm.ncs_object()  # get the map symmetry as an ncs object
+</code></pre>
+
+<h6 class="mt-4">Find highest grid points in map and return as coordinates. Note: sites are relative to origin of map</h6>
+<pre class="codeDL"><code>sites_cart = mm.find_n_highest_grid_points_as_sites_cart() # highest points
+</code></pre>
+
+<h6 class="mt-4">Find n_atoms grid points in map in high density separated by dist_min</h6>
+<pre class="codeDL"><code>sites_cart = mm.trace_atoms_in_map(dist_min = 2, n_atoms = 31) # separated
+                             # sites in density
+</code></pre>
+
+<h6 class="mt-4">Get map as Fourier coefficients and back. Note: origin stays at (0,0,0) throughout.</h6>
+<pre class="codeDL"><code>map_coeffs = mm.map_as_fourier_coefficients(d_min = 3)  # map coeffs to 3 A
+new_mm = mm.fourier_coefficients_as_map_manager(map_coeffs) # new map_manager
+</code></pre>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Working with map_data arrays (3D arrays)</h3>
+
+<h6 class="mt-4">Deep-copy map_data</h6>
+<pre class="codeDL"><code>copy_of_map_data = map_data.deep_copy()  #  Separate copy of map_data
+</code></pre>
+
+<h6 class="mt-4">Size of map_data</h6>
+<pre class="codeDL"><code>print ("Size of almost anything is anything.size(): %s" %(map_data.size()))
+</code></pre>
+
+<h6 class="mt-4">Pointer-only copy of map_data</h6>
+<pre class="codeDL"><code>pointer_to_map_data = map_data  #  just an alias to map_data
+</code></pre>
+
+<h6 class="mt-4">Get or set value of map_data at indices i,j,k</h6>
+<pre class="codeDL"><code>value = map_data[3,4,5] # get value of map_data at indices 3,4,5
+map_data[3,4,5] = value # set value of map_data at indices 3,4,5
+</code></pre>
+
+<h6 class="mt-4">Select all map_data > 0. Note: selection array has same shape as map_data</h6>
+<pre class="codeDL"><code>sel = (map_data > 0)  #  array with True at all grid points with map_data > 0
+</code></pre>
+
+<h6 class="mt-4">Set all selected values to value. Note: if map_data is a 3D array, sel must also be a 3D array</h6>
+<pre class="codeDL"><code>map_data.set_selected(sel, value) # set values where sel is True to value
+</code></pre>
+
+<h6 class="mt-4">Work with 3D map as a 1D array (Note: the data in the arrays are identical; change one and the other changes too</h6>
+<pre class="codeDL"><code>map_data_1d = map_data.as_1d()  # 1-D array containing the data in map_data
+</code></pre>
+
+<h6 class="mt-4">Empty 1D array</h6>
+<pre class="codeDL"><code>from scitbx.array_family import flex   # import flex
+new_array = flex.double(map_data_1d.size(), 0) # new array of zeroes
+</code></pre>
+
+<h6 class="mt-4">Convert a 1D array to 3D</h6>
+<pre class="codeDL"><code>acc = map_data.accessor()  # get the accessor for our 3d map data
+new_array.reshape(acc)     # change new_array shape to match map_data
+</code></pre>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Working with 1-D versions of map_data arrays (flex.double)</h3>
+
+<h6 class="mt-4">Duplicate (deep copy, new numbers)</h6>
+<pre class="codeDL"><code>dc =  map_data_1d.deep_copy()    # copy of map_data_1d
+</code></pre>
+
+<h6 class="mt-4">Multiply, divide, add, check result</h6>
+<pre class="codeDL"><code>dc = dc * 3   # multiply all values in dc by 3 and make it the new dc
+dc *= 3   # multiply all values in dc by 3 and make it the new dc
+new_array = dc + (0.5 * dc ) * (dc)  # each value in new_array is
+                                     #  value in dc + 0.5 *value in dc squared
+new_array_2 = dc + 0.5 * flex.pow2(dc) # same result
+assert new_array == new_array_2      # assert all values in 2 arrays match
+</code></pre>
+
+<h6 class="mt-4">Get the minimum, maximum, and mean</h6>
+<pre class="codeDL"><code>m = map_data_1d.min_max_mean()
+print ("Min, max, mean: (%.3f, %.3f, %.3f" %(m.min, m.max, m.mean))
+</code></pre>
+
+<h6 class="mt-4">Get the standard deviation</h6>
+<pre class="codeDL"><code>sd = map_data_1d.standard_deviation_of_the_sample()
+</code></pre>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Working with model objects</h3>
+
+<h6 class="mt-4">Get coordinates (orthogonal Angstrom units, flex array) from model object</h6>
+<pre class="codeDL"><code>sites_cart = model.get_sites_cart()  # coordinates in model. Order as PDB file
+</code></pre>
+
+<h6 class="mt-4">Get coordinates (fractional, flex array) from model object</h6>
+<pre class="codeDL"><code>sites_frac = model.get_sites_frac()  # fractional coordinates
+</code></pre>
+
+<h6 class="mt-4">Convert fractional to orthogonal A and back</h6>
+<pre class="codeDL"><code>sites_frac = model.crystal_symmetry().unit_cell().fractionalize(sites_cart)  #
+sites_cart = model.crystal_symmetry().unit_cell().orthogonalize(sites_frac)  #
+</code></pre>
+
+<h6 class="mt-4">Print out first 10 coordinates</h6>
+<pre class="codeDL"><code>for x,y,z in sites_cart[:10]:                 # go through sites_cart
+  print ("SITE: (%.3f, %.3f, %.3f)" %(x,y,z))   # print them out
+</code></pre>
+
+<h6 class="mt-4">Select part of a model</h6>
+<pre class="codeDL"><code>model = dm.get_model("structure_search_target.pdb")   # read in model
+part_of_model = model.apply_selection_string('resseq 6:25')  # select part
+</code></pre>
+
+<h6 class="mt-4">Separately create a selection (a flex.bool array) and then apply it</h6>
+<pre class="codeDL"><code>sel = model.selection('resseq 6:25')    # get a selection array
+part_of_model = model.select(sel)       # apply the selection
+</code></pre>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Working with coordinate arrays (3-D, flex.vec3_double)</h3>
+
+<h6 class="mt-4">Get the minimum x,y,z or maximum x,y,z</h6>
+<pre class="codeDL"><code>min_xyz = sites_cart.min() # lowest value of x, of y, and of z (3 numbers)
+max_xyz = sites_cart.max() # highest value of x, of y, and of z (3 numbers)
+</code></pre>
+
+<h6 class="mt-4">Get the distances of a set of coordinates from the origin</h6>
+<pre class="codeDL"><code>distances = sites_cart.norms()  # distances from origin
+</code></pre>
+
+<h6 class="mt-4">Get the distances between 2 sets of coordinates</h6>
+<pre class="codeDL"><code>sites_cart_2 = sites_cart.reversed()  # just something different
+diffs = (sites_cart - sites_cart_2)  # difference vectors
+distances = diffs.norms()  # distances between sites_cart and sites_cart_2
+</code></pre>
+
+<h6 class="mt-4">Get rms length of a set of coordinates</h6>
+<pre class="codeDL"><code>rms_length = sites_cart.rms_length()  # rms length
+</code></pre>
+
+<h6 class="mt-4">Get rms difference between two sets of coordinates</h6>
+<pre class="codeDL"><code>rms_difference = sites_cart.rms_difference(sites_cart_2)  # rms diff
+</code></pre>
+
+<h6 class="mt-4">Select all the sites where x > 10 and add 3 to their y values.</h6>
+<pre class="codeDL"><code>x = sites_cart.parts()[0]     # x values for each coordinate
+y = sites_cart.parts()[1]     # y values
+z = sites_cart.parts()[2]     # z values
+sel = (x > 10)   #   all sites where x value is > 10
+
+sel_y = y.select(sel)  # selected y values
+new_y = y.set_selected(sel,sel_y + 3) # add 3 to selected y values
+                              # Note: sel_y.size() == sel.count(True)
+from scitbx.array_family import flex
+new_sites_cart = flex.vec3_double(x, new_y, z) #  new sites with new y
+</code></pre>
+
+<!-- ----------------------------------------------------------------------- -->
+
+<h3 class="mt-5">Working with ncs (reconstruction symmetry) objects</h3>
+
+<h6 class="mt-4">Read in reconstruction symmetry (“ncs”) and make an ncs object:</h6>
+<pre class="codeDL"><code>ncs_d7 = dm.get_ncs_spec("D7.ncs_spec")   # reconstruction symmetry file
+</code></pre>
+
+<h6 class="mt-4">Print out ncs information</h6>
+<pre class="codeDL"><code>ncs_d7.display_all()  #  print out ncs
+</code></pre>
+
+<h6 class="mt-4">Get ncs from a model</h6>
+<pre class="codeDL"><code>ncs_d7_model = dm.get_model("D7.pdb")   # model with D7 symmetry
+ncs_d7_model.search_for_ncs()  # find NCS in this model
+ncs_spec_object = ncs_d7_model.get_ncs_obj().get_ncs_info_as_spec() # ncs
+print (ncs_spec_object.display_all()) #   print out summary
+</code></pre>
+
+<h6 class="mt-4">Find ncs from a map and apply to a model using the model_building tool</h6>
+<pre class="codeDL"><code>mmm = dm.get_map_model_manager(model_file="D7.pdb",   # model
+   map_files="D7.ccp4")    #map
+build=mmm.model_building()    # get a model-building object
+build.map_manager().find_map_symmetry(symmetry = "D7")  # find symmetry in map
+build.map_manager().ncs_object().display_all() # summary
+model_no_ncs = build.model().apply_selection_string("chain A") #
+print (model_no_ncs)#  make sure we got one chain
+
+</code></pre>
+
+<!--
+  model_ncs = build.apply_ncs(model = model_no_ncs) # apply ncs to model_no_ncs
+print (model_ncs)  # now we have 14 chains
+-->
+
+<!-- ----------------------------------------------------------------------- -->
+
+
+<!----------------------- EDIT END ---------------------------->
+<!-- DO NOT EDIT ANYTHING BELOW!!!! -->
+</div> <!-- end col-sm-9 -->
+
+<!-- automatic table of contents
+     located in the sidebar; will move to the top on a small screen -->
+<div class="col-sm-3">
+  <nav id="toc" data-toggle="toc"></nav>
+</div> <!-- end col-sm-3 -->
+
+</div> <!-- end row -->
+
+</div> <!-- end container -->
+
+{% endblock %}

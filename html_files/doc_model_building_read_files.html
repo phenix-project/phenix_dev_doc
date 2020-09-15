@@ -39,7 +39,11 @@ dm.set_overwrite(True)         # Overwrite files with the same name
 
 <p>The DataManager has many useful functions for reading and writing files. Here we are going to use a function that can read in a map and a model that we specify and that creates a  map_model_manager from the map and model:</p>
 
-<p>The map and model with unmodeled ligand density are in the in the model-building regression directory. Let’s read them in and create a map_model_manager.  Just cut and paste this command into your terminal window:</p>
+<p>The map and model with unmodeled ligand density are in the in the model-building regression directory. Note the unmodelled density in the center of the screenshot.</p>
+<img width="500" src="{% static 'phenix/img/fig_doc_model_building_read_files.png' %}">
+
+
+<p class="mt-3">Let’s read the map and the model in and create a map_model_manager. Just cut and paste this command into your terminal window:</p>
 
 <pre class="codeDL"><code>mmm = dm.get_map_model_manager(        # getting a map_model_manager
   model_file="boxed_ligand_map.pdb",   # model file

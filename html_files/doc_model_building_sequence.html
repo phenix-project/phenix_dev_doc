@@ -1,0 +1,99 @@
+{% extends "phenix/header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+
+
+<div class="col-sm-9">
+<!-- DO NOT EDIT ANYTHING ABOVE!!!! -->
+<!----------------------- EDIT START ---------------------------->
+
+<h2><center>Assign a sequence to a model</center></h2>
+
+<p class="lead mt-4">Learn how to to assign a sequence to a model or to guess the sequence from the density.</p>
+
+<h3 class="mt-3">Setting up example data</h3>
+
+<p>First, let's set up the example data (described in more detail <a href="{% url 'doc_model_building_read_files_phenix' %}">here</a>):</p>
+
+<p>Get the files from the Phenix regression directory and change into the new folder:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>phenix.setup_tutorial tutorial_name=model-building-scripting
+cd model-building-scripting</code></pre>
+
+<p>Type <code>phenix.python</code> to start up Python with the Phenix environment all set up:</p>
+
+<pre class="CodeGreen"><code>phenix.python</code></pre>
+
+<p>Set up the high level objects, so we can start our task:</p>
+
+<pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
+dm = DataManager()             # Initialize the DataManager and call it dm
+dm.set_overwrite(True)         # Overwrite files with the same name
+</code></pre>
+
+<h3 class="mt-3">Assigning a sequence</h3>
+
+<p>The model_building object has a tool that examines the density in a map at the positions of each side-chain in a model and tries to figure out what side chain belongs there. This can be used to assign a sequence to a model or to guess the sequence from the density. Let’s use it to assign a sequence to a model.</p>
+
+<p>Use the DataManager to read in a model and map from our working directory:</p>
+
+<pre class="codeDL"><code>mmm = dm.get_map_model_manager(        # getting a map_model_manager
+  model_file="short_model_main_chain_box.pdb",   # model file
+  map_files="short_model_box.ccp4")   # map file
+</code></pre>
+
+<p>The model consists of alanine residues:</p>
+
+<img width="700" src="{% static 'phenix/img/fig_doc_model_building_sequence_a.png' %}">
+
+<p class="mt-3">We need one extra file this time, a sequence file. Let’s read our sequence as an object from seq.dat:</p>
+
+<pre class="codeDL"><code>seq_object=dm.get_sequence("seq.dat")     # read sequence object from seq file
+</code></pre>
+
+<p>Our sequence as text is available from the sequence object:</p>
+
+<pre class="codeDL"><code>sequence_as_text = seq_object[0].sequence         # get simple text sequence
+</code></pre>
+
+<p>We can set the resolution and experiment type and get a model_building object:</p>
+
+<pre class="codeDL"><code>mmm.set_resolution(3.0)    # working (nominal) resolution of map
+mmm.set_experiment_type('xray')   # define experiment type
+build = mmm.model_building()  # get a model-building object
+</code></pre>
+
+<p>Now we are all set. We can just say:</p>
+
+<pre class="codeDL"><code>build.sequence_from_map(sequence=sequence_as_text)   # get sequence from the map
+</code></pre>
+
+<p>...and our working model will be replaced by a model with sequence assigned (if we are lucky).  We can  write out the new model and compare it with the original in Coot or Chimera along with the map in short_model_box.ccp4:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'sequence_assigned.pdb') # write out model
+</code></pre>
+
+<img width="700" src="{% static 'phenix/img/fig_doc_model_building_sequence_b.png' %}">
+
+
+<!----------------------- EDIT END ---------------------------->
+<!-- DO NOT EDIT ANYTHING BELOW!!!! -->
+</div> <!-- end col-sm-9 -->
+
+<!-- automatic table of contents
+     located in the sidebar; will move to the top on a small screen -->
+<div class="col-sm-3">
+  <nav id="toc" data-toggle="toc"></nav>
+</div> <!-- end col-sm-3 -->
+
+</div> <!-- end row -->
+
+</div> <!-- end container -->
+
+{% endblock %}

@@ -17,17 +17,30 @@
 
 <p class="lead mt-4">Learn how to fill in a gap in a model with the fit_loop tool.</p>
 
-<p>Let’s set up a map and model from the phenix_regression directory:</p>
+<h3 class="mt-3">Setting up example data</h3>
+
+<p>First, let's set up the example data (described in more detail <a href="{% url 'doc_model_building_read_files_phenix' %}">here</a>):</p>
+
+<p>Get the files from the Phenix regression directory and change into the new folder:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>phenix.setup_tutorial tutorial_name=model-building-scripting
+cd model-building-scripting</code></pre>
+
+<p>Type <code>phenix.python</code> to start up Python with the Phenix environment all set up:</p>
+
+<pre class="CodeGreen"><code>phenix.python</code></pre>
+
+<p>Set up the high level objects, so we can start our task:</p>
 
 <pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
 dm = DataManager()             # Initialize the DataManager and call it dm
 dm.set_overwrite(True)         # Overwrite files with the same name
-</code></pre>
-
-<pre class="codeDL"><code>mmm = dm.get_map_model_manager(        # getting a map_model_manager
+mmm = dm.get_map_model_manager(        # getting a map_model_manager
   model_file="short_model_main_chain_box.pdb",   # model file
   map_files="short_model_box.ccp4")   # map file
 </code></pre>
+
+<h3 class="mt-3">Fitting a loop</h3>
 
 <p>We can fill in the resolution and experiment type and get a model_building object:</p>
 
@@ -36,19 +49,21 @@ mmm.set_experiment_type('cryo_em')    # it is a cryo-EM map
 build = mmm.model_building()          # get a model-building object
 </code></pre>
 
-<p>Let’s remove some residues in the model to create a need for a loop (we don’t have to do this, but it makes it clearer):</p>
+<p>Let’s remove some residues in this model to create a model that needs a loop (we don’t have to do this, but it makes this example clearer):</p>
 
 <pre class="codeDL"><code>new_model = build.model().apply_selection_string(    # apply a selection
    ' not (chain A and resseq 516:519)'  )  # remove residues 516-519 chain A
 build.set_model(new_model)   # replace existing model with new_model
 </code></pre>
 
-<p>You can read about how to specify selections in the cctbx selections documentation.  The apply_selection_string method is part of a model object and it applies the selection you specify and returns a new model based on that selection.</p>
+<p>You can read about how to specify selections in the <a href="https://www.phenix-online.org/documentation/reference/atom_selections.html"> Phenix selection syntax </a> documentation. The <code>apply_selection_string</code> method is part of a model object and it applies the selection you specify and returns a new model based on that selection.</p>
 
 <p>Let’s write out the working model:</p>
 
 <pre class="codeDL"><code>dm.write_model_file(build.model(), 'model_without_loop.pdb')  # new model
 </code></pre>
+
+<img width="700" src="{% static 'phenix/img/fig_doc_model_building_2.png' %}">
 
 <p>We can choose which methods to use in loop fitting. Let’s use resolve loop fitting:</p>
 
@@ -75,7 +90,7 @@ build.set_model(new_model)   # replace existing model with new_model
 <pre class="codeDL"><code>dm.write_model_file(build.model(), 'fitted_loop_model.pdb')  # new model
 </code></pre>
 
-
+<img width="700" src="{% static 'phenix/img/fig_doc_model_building_2_b.png' %}">
 <!----------------------- EDIT END ---------------------------->
 <!-- DO NOT EDIT ANYTHING BELOW!!!! -->
 </div> <!-- end col-sm-9 -->

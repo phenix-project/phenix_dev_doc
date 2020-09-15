@@ -1,0 +1,77 @@
+{% extends "phenix/header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+
+
+<div class="col-sm-9">
+<!-- DO NOT EDIT ANYTHING ABOVE!!!! -->
+<!----------------------- EDIT START ---------------------------->
+
+<h2><center>Phenix high-level tools for model-building</center></h2>
+
+<p class="lead mt-4">Introduction to high-level tools for model-building in Phenix. Learn when to use automatic model-building and when to use the library modules in scripts.</p>
+
+<p>Phenix has easy-to-use tools for carrying out basic model-building tasks such as building a model into density, fitting loops, fitting ligands, and rebuilding segments of a model. A set of high-level tools allow you to write simple Python scripts that can do all these things. You can use these scripts to interactively build or modify a model or to develop your own protocol for model-building or improvement. This interface to model building is designed for both developers and users of Phenix who want to script model-building tasks.</p>
+
+<p>Here are model-building tasks that you can script:</p>
+
+<ul>
+  <li>Build:  build a model into a region of density</li>
+  <li>Fit_ligand:  fit a flexible ligand into density</li>
+  <li>Fit_loop:  fit a loop between to chain ends</li>
+  <li>Replace_segment:  replace a part of a chain</li>
+  <li>Insert_loop:  insert a fitted loop or segment into working model</li>
+  <li>Combine_models:  take the best parts of several models and combine them into a single model</li>
+  <li>Morph:  adjust a model to match density</li>
+  <li>Sequence_from_map:  align sequence or guess sequence from map and main-chain model</li>
+  <li>Refine:  carry out simple real-space refinement</li>
+</ul>
+
+<p>For most of these tasks there are several methods you can use to carry out the task. You can try them all in parallel and choose the result that gives the best fit at the end.</p>
+
+<p>All of these tools use high-level cctbx objects such as the  map_model_manager to read, write, and manipulate the maps and models. For an introduction to these high-level cctbx objects see the cctbx overview with tutorials.</p>
+
+<p>This part of the documentation describes how to use these model-building tools and provides simple scripts to illustrate the procedures.</p>
+
+<h3 class="mt-3">The high-level model-building tools are designed for local model-building</h3>
+
+<p>The high-level model-building tools that are described here are intended to be used on a small part of a density map. You can use them on any size map, but the most efficient way to use them on a big map is to cut out a box of density for the part of the map that you are interested in and then to use these tools on that box of density. You can use the  map_model_manager to conveniently cut out (box a part of a map suitable for model-building. You can also use the split_into_boxes and merge_boxes tools to do this.  This will be demonstrated below as well.</p>
+
+<h3 class="mt-3">When to use fully automatic model-building and when to use high-level tools for model-building</h3>
+
+<p>If you just want to use Phenix to build a model, the easiest thing to do is to use one of the fully automatic model-building tools, such as map_to_model (for cryo-EM) or autobuild (for crystallography). These tools carry out all the steps in model-building and give you a partial or complete model. You have some control over the process, but only a little.</p>
+
+<p>On the other hand, if you have something specific that you want to do, such as to fix a particular segment of a model, or to fit a particular gap in your model, the high-level model-building tools are designed to allow you to carry out that specific task, examine the results, and choose what to do next.</p>
+
+<p>Additionally, if you want to design your own procedure for model building or improvement, you can use the high-level tools to carry out individual steps in your procedure.</p>
+
+
+
+
+
+
+
+
+
+
+<!----------------------- EDIT END ---------------------------->
+<!-- DO NOT EDIT ANYTHING BELOW!!!! -->
+</div> <!-- end col-sm-9 -->
+
+<!-- automatic table of contents
+     located in the sidebar; will move to the top on a small screen -->
+<div class="col-sm-3">
+  <nav id="toc" data-toggle="toc"></nav>
+</div> <!-- end col-sm-3 -->
+
+</div> <!-- end row -->
+
+</div> <!-- end container -->
+
+{% endblock %}

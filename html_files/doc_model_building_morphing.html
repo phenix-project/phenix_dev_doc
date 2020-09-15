@@ -1,0 +1,177 @@
+{% extends "phenix/header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+
+<div class="col-sm-9">
+<!-- DO NOT EDIT ANYTHING ABOVE!!!! -->
+<!----------------------- EDIT START ---------------------------->
+
+<h2><center>Morphing a model</center></h2>
+
+<p class="lead mt-4">Learn how to adjust a model by morphing it to match a map. Refinement can further improve the model-to-map fit.</p>
+
+<h3 class="mt-3">Setting up example data</h3>
+
+<p>First, let's set up the example data (described in more detail <a href="{% url 'doc_model_building_read_files_phenix' %}">here</a>):</p>
+
+<p>Get the files from the Phenix regression directory and change into the new folder:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>phenix.setup_tutorial tutorial_name=model-building-scripting
+cd model-building-scripting</code></pre>
+
+<p>Type <code>phenix.python</code> to start up Python with the Phenix environment all set up:</p>
+
+<pre class="CodeGreen"><code>phenix.python</code></pre>
+
+<p>Set up the high level objects, so we can start our task:</p>
+
+<pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
+dm = DataManager()             # Initialize the DataManager and call it dm
+dm.set_overwrite(True)         # Overwrite files with the same name
+mmm = dm.get_map_model_manager(        # getting a map_model_manager
+  model_file="short_model_box_for_morph.pdb",   # model file
+  map_files="short_model_box.ccp4")   # map file
+</code></pre>
+
+<h3 class="mt-3">Morphing a model</h3>
+
+<p>Let’s adjust a model by morphing it to match the density in a map. Morphing basically distorts a model in a smooth way, so that locally the model does not change much, but parts of the model that are far apart along the chain can move relative to each other.</p>
+
+<p>Our starting model has two chains (A and B). The B chain is offset from its correct position by about 1.5 Å.</p>
+
+<img width="600" src="{% static 'phenix/img/fig_doc_morphing_a.png' %}">
+
+<p>Let’s select just chain B to work with (in this example, chains A and B overlap and so it is best to work with just one).</p>
+
+<pre class="codeDL"><code>chainB = mmm.model().apply_selection_string(    # apply a selection
+   'chain B'  )  # chain B
+</code></pre>
+
+<p>And now we can replace the model in mmm with chainB (adding a model with model_id of 'model' replaces the existing model):</p>
+
+<pre class="codeDL"><code>mmm.add_model_by_id(chainB, model_id = 'model')  # replace model in mmm
+</code></pre>
+
+<p>Let’s  fill in the resolution and experiment type and get a model_building object:</p>
+
+<pre class="codeDL"><code>mmm.set_resolution(3)                 # resolution is 3 A
+mmm.set_experiment_type('cryo_em')    # it is a cryo-EM map
+build = mmm.model_building()          # get a model-building object
+</code></pre>
+
+<p>We can write out the model and look at it with Coot, comparing it with the map:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), "short_model_box_for_morph.pdb") # model
+dm.write_real_map_file(build.map_manager(), "short_model_box.ccp4") # map
+</code></pre>
+
+<p>Let’s save the coordinates of the atoms in our model so we can compare them to their positions after morphing:</p>
+
+<pre class="codeDL"><code>chainB = build.model().deep_copy()   # save chain B
+starting_coords_chain_B = chainB.get_sites_cart()    # get coordinates chain B
+</code></pre>
+
+<p>Now let’s morph the model. We’ll use the selection method 'by_segment' to choose how to split up the model when morphing. This choice means split up by chains, and also split any chains that are broken:</p>
+
+<pre class="codeDL"><code>build.set_defaults(debug=True)      # debugging run
+build.morph(default_selection_method='by_segment')   # morph model
+</code></pre>
+
+<p>We can see how much each chain has moved. The model in build has been updated so we get the coordinates of the atoms in this working model:</p>
+
+<pre class="codeDL"><code>chainB_morphed = build.model()  # chain B
+final_coords_chain_B = chainB_morphed.get_sites_cart()    # get coordinates chain B
+</code></pre>
+
+<p>The rmsd between starting and final chains A and B are then:</p>
+
+<pre class="codeDL"><code>rms_B = final_coords_chain_B.rms_difference(starting_coords_chain_B)  # rms B
+</code></pre>
+
+<p>You can print this out:</p>
+
+<pre class="codeDL"><code>rms_B   # print out rms value
+</code></pre>
+
+<p>Which yields something like:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>1.5801081738194553</code></pre>
+
+<p>We can compare the map-model correlations of the original and morphed models:</p>
+
+<pre class="codeDL"><code>cc_before = mmm.map_model_cc(model = chainB)  # map-model cc for chain B
+cc_after = mmm.map_model_cc(model = chainB_morphed)  # map-model cc after
+cc_before, cc_after    # cc before and after morphing
+</code></pre>
+
+<p>Which yields something like:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>(0.25513080677867195, 0.818070481365688)</code></pre>
+
+<p>Indicating that the map-model correlation is much higher after morphing.</p>
+
+<p>Let’s write out the morphed model to 'morphed_model.pdb' and compare it in Coot with the original in "short_model_box_for_morph.pdb":</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'morphed_model.pdb')  # write out morphed
+</code></pre>
+
+<p>The morphed model (red) is moved compared to the initial model (transparent blue), and it now fits to the density.</p>
+
+<img width="600" src="{% static 'phenix/img/fig_doc_morphing_b.png' %}">
+
+<h3 class="mt-3">Refining a model</h3>
+
+<p>Let’s run a simple version of real-space refinement to improve the morphed model (see section above). This option is just a simplified version of phenix.real_space_refine that is suitable for quick improvement of a model while you are in the middle of model-building. For serious refinement you will want to use the standalone phenix.real_space_refine tool.</p>
+
+<p>Let’s refine our morphed model from the previous section. This is pretty easy. You type:</p>
+
+<pre class="codeDL"><code>build.refine()     # refine working model against working map
+</code></pre>
+
+<p>and wait a minute or two and now you can write out the refined model:</p>
+
+<pre class="codeDL"><code>dm.write_model_file(build.model(), 'refined_model.pdb')  # refined
+</code></pre>
+
+<p>We can get the map-model correlation now:</p>
+
+<pre class="codeDL"><code>cc_refined = mmm.map_model_cc(model = build.model())  # refined cc
+</code></pre>
+
+<p>And print it out:</p>
+
+<pre class="codeDL"><code>cc_refined  # print out refined cc
+</code></pre>
+
+<p>Which gives something like:</p>
+
+<pre class="CodeGreen" style="font-size: 12px"><code>0.8237540703832011</code></pre>
+
+<p>Which is just a tiny bit better than the morphed model.</p>
+
+<p>Have a look at morphed_model.pdb and refined_model.pdb along with the map in short_model_box.ccp4 and you will see that the refined model (green) matches the map better than the morphed model without refinement (red).</p>
+
+<img width="600" src="{% static 'phenix/img/fig_doc_morphing_c.png' %}">
+
+
+<!----------------------- EDIT END ---------------------------->
+<!-- DO NOT EDIT ANYTHING BELOW!!!! -->
+</div> <!-- end col-sm-9 -->
+
+<!-- automatic table of contents
+     located in the sidebar; will move to the top on a small screen -->
+<div class="col-sm-3">
+  <nav id="toc" data-toggle="toc"></nav>
+</div> <!-- end col-sm-3 -->
+
+</div> <!-- end row -->
+
+</div> <!-- end container -->
+
+{% endblock %}

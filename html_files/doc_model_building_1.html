@@ -17,7 +17,7 @@
 
 <p class="lead mt-4">Learn how to build a model into some density and how to automatically extend the newly built chain.</p>
 
-<h3 class="mt-3">Building a model</h3>
+<h3 class="mt-3">Setting up example data</h3>
 
 <p>First, let's set up the example data (described in more detail <a href="{% url 'doc_model_building_read_files_phenix' %}">here</a>):</p>
 
@@ -26,16 +26,28 @@
 <pre class="CodeGreen" style="font-size: 12px"><code>phenix.setup_tutorial tutorial_name=model-building-scripting
 cd model-building-scripting</code></pre>
 
+<p>Type <code>phenix.python</code> to start up Python with the Phenix environment all set up:</p>
+
+<pre class="CodeGreen"><code>phenix.python</code></pre>
+
+<p>Set up the high level objects, so we can start our task:</p>
+
 <pre class="codeDL"><code>from iotbx.data_manager import DataManager    # Load in the DataManager
 dm = DataManager()             # Initialize the DataManager and call it dm
 dm.set_overwrite(True)         # Overwrite files with the same name
 </code></pre>
+
+<h3 class="mt-3">Building a model</h3>
 
 <p>Let’s build a model into some density in a map using the build model-building tool. We can read in a map file from the model-building regression directory (no model this time):</p>
 
 <pre class="codeDL"><code>mmm = dm.get_map_model_manager( model_file = None,       # getting a map_model_manager
     map_files="short_model_box.ccp4")   # map file
 </code></pre>
+
+<p>Below is an image of the map: </p>
+
+<img width="600" src="{% static 'phenix/img/fig_doc_model_building_1_a.png' %}">
 
 <p>Let’s also tell the map_model_manager  mmm about the resolution and experiment type (cryo_em or xray).</p>
 
@@ -64,7 +76,9 @@ mmm.set_experiment_type('xray')   # define experiment type
 dm.write_real_map_file(build.map_manager(), 'build_map.ccp4')# Working map
 </code></pre>
 
-<p>Have a look at this model and map in Coot or Chimera. You can see that three helices were built but there is still more to be built. In particular, the helix starting at residue 1 of chain U appears to be suitable for extension in the N-terminal direction. Let’s do this next.</p>
+<p>Have a look at this model and map in Coot or Chimera. You can see that three helices were built but there is still more to be built. In particular, the helix starting at residue 1 of chain U (green circle) appears to be suitable for extension in the N-terminal direction. Let’s do this next.</p>
+
+<img width="600" src="{% static 'phenix/img/fig_doc_model_building_1_b.png' %}">
 
 <!--                                                 -->
 <h3 class="mt-3">Extending a chain</h3>
@@ -77,7 +91,7 @@ dm.write_real_map_file(build.map_manager(), 'build_map.ccp4')# Working map
 <p>We can get just the extension if we want with the command:</p>
 
 <pre class="codeDL"><code>result = build.get_best_result()   # get the best extension result object
-insertion_model = result.model   # the extension as a model
+insertion_model = result.model     # the extension as a model
 </code></pre>
 
 <p>Let’s insert the extension:</p>
@@ -96,11 +110,15 @@ insertion_model = result.model   # the extension as a model
 dm.write_real_map_file(build.map_manager(), 'extended_map.ccp4')# Working map
 </code></pre>
 
-<p>This results in more residues at the N-terminal end. If some do not look very good you can remove them with a pair of commands like this:</p>
+<p>This results in more residues at the N-terminal end.</p>
+
+<img width="600" src="{% static 'phenix/img/fig_doc_model_building_1_c.png' %}">
+
+<p>If some do not look very good you can remove them with a pair of commands like this:</p>
 
 <pre class="codeDL"><code>new_model = build.model().apply_selection_string(    # apply a selection
    'not (chain U and resseq 1:1)'  )  # remove residue 1 from chain U
-build.set_model(new_model)   # replace existing model with new_model
+build.set_model(new_model)            # replace existing model with new_model
 </code></pre>
 
 <p>You can write out your new model:</p>
@@ -114,18 +132,14 @@ build.set_model(new_model)   # replace existing model with new_model
 </code></pre>
 
 
-<p>In this example we extended backwards from the N-terminus of the model. You can also extend forwards using the command build.extend.</p>
-
-<!--
+<p>In this example we extended backwards from the N-terminus of the model. You can also extend forwards using the command <code>build.extend</code>.</p>
 
 <p>Also in these examples we built a protein model. You can build and extend an RNA or DNA model as well. You specify the chain type when building with:</p>
 
-<pre class="codeDL"><code>build.set_defaults(chain_type = 'RNA')
+<pre class="codeDL"><code>build.build(chain_type = 'RNA')
 </code></pre>
 
 <p>or a similar command for DNA. The chain extensions just keep the same chain type as the part that is already present.</p>
-
--->
 
 <!----------------------- EDIT END ---------------------------->
 <!-- DO NOT EDIT ANYTHING BELOW!!!! -->
