@@ -113,7 +113,9 @@ mmm.set_experiment_type("xray")   # alternatives are cryo_em/neutron
 </code></pre>
 
 <h6 class="mt-4">Generate a model map using a  map_model_manager</h6>
-<pre class="codeDL"><code>model = dm.get_model("structure_search_target.pdb")    # read in a model
+<pre class="codeDL"><code>dm = DataManager()             # Initialize the DataManager and call it dm
+dm.set_overwrite(True)
+model = dm.get_model("structure_search_target.pdb")    # read in a model
 model_mmm = dm.get_map_model_manager(  # getting a map_model_manager
     model_file = "structure_search_target.pdb",)   # model to read in
 model_mmm.generate_map(d_min=3)        #   generate map to resolution of 3 A
