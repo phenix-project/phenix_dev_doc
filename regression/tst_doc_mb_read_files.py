@@ -4,8 +4,8 @@ import libtbx.load_env
 from phenix_dev_doc.regression.exercise import exercise
 
 def run():
-  return_code = exercise(script   = 'doc_model_building_sequence.py',
-                         tmp_path = 'tmp_files_7')
+  return_code = exercise(script   = 'doc_mb_read_files.py',
+                         tmp_path = 'tmp_files_1')
   return return_code
 
 if __name__ == '__main__':

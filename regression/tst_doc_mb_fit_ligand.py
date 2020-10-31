@@ -4,7 +4,7 @@ import libtbx.load_env
 from phenix_dev_doc.regression.exercise import exercise
 
 def run():
-  return_code = exercise(script   = 'doc_fit_ligand.py',
+  return_code = exercise(script   = 'doc_mb_fit_ligand.py',
                          tmp_path = 'tmp_files_2')
   return return_code
 
