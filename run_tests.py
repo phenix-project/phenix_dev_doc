@@ -5,7 +5,7 @@ import libtbx.load_env
 tst_list = [
   "$D/regression/tst_doc_mb_read_files.py",
   "$D/regression/tst_doc_mb_fit_ligand.py",
-  "$D/regression/tst_doc_mb_model_building.py",
+#  "$D/regression/tst_doc_mb_model_building.py", # temporarily disabled
   "$D/regression/tst_doc_mb_loop_fitting.py",
   "$D/regression/tst_doc_mb_replace_segment.py",
   "$D/regression/tst_doc_mb_morphing.py",
