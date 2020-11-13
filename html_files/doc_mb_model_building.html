@@ -129,12 +129,13 @@ build.set_model(new_model)            # replace existing model with new_model
 
 <p>In this example we extended backwards from the N-terminus of the model. You can also extend forwards using the command <code>build.extend</code>.</p>
 
-<p>Also in these examples we built a protein model. You can build and extend an RNA or DNA model as well. You specify the chain type when building with:</p>
+<p>Also in these examples we built a protein model. You can build and extend an RNA or DNA model as well. You usually specify the chain type before building 
+with:</p>
 
-<pre class="codeDL"><code>build.build(chain_type = 'RNA')
+<pre class="codeDL"><code>build.set_defaults(chain_type = 'RNA')
 </code></pre>
 
-<p>or a similar command for DNA. The chain extensions just keep the same chain type as the part that is already present.</p>
+<p>or a similar command for DNA or PROTEIN (the default is PROTEIN). The chain extensions just keep the same chain type as the part that is already present.</p>
 
 <!----------------------- EDIT END ---------------------------->
 <!-- DO NOT EDIT ANYTHING BELOW!!!! -->
