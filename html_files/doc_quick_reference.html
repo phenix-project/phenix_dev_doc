@@ -231,7 +231,7 @@ binary_filtered = mm.binary_filter(threshold = 0.5)  # set value to 1 if
 
 <h6 class="mt-4">Create binary mask around density, around edges, around atoms (does not apply mask, just creates it)</h6>
 <pre class="codeDL"><code>mm.create_mask_around_density(resolution = 3) # mask around density
-mm.create_mask_around_edges(soft_mask_radius = 3) # mask around edges
+mm.create_mask_around_edges(boundary_radius = 3) # mask around edges
 model = dm.get_model("structure_search_target.pdb")  # get a model
 mm.create_mask_around_atoms(model = model)  # radius=max(resolution,3)
 </code></pre>
