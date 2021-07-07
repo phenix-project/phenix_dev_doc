@@ -9,7 +9,7 @@ def exercise(script, tmp_path):
   regression_dir = os.path.dirname(os.path.abspath(__file__))
   root_dir = os.path.dirname(regression_dir)
   examples_dir = os.path.join(root_dir, 'examples')
-  tmp_dir = os.path.join(regression_dir, tmp_path)
+  tmp_dir = os.path.join(os.getcwd(), tmp_path)
 
   # make temporary directy "tmp_dir"
   if (not os.path.isdir(tmp_dir)):
