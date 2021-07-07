@@ -55,14 +55,17 @@ mmm.set_experiment_type('xray')   # define experiment type
 <pre class="codeDL"><code>build = mmm.model_building()  # get a model-building object
 </code></pre>
 
-<p>...and  set the number of processors to use (whatever number you have):</p>
+<p>...and set the number of processors to use (whatever number you have):</p>
+<pre class="codeDL"><code>build.set_defaults(nproc = 1)   # use 1 processor
+</code></pre>
 
-<pre class="codeDL"><code>build.set_defaults(nproc = 4)   # use 4 processors
+<p>...and set up for a quick run:</p>
+<pre class="codeDL"><code>build.set_defaults(thoroughness = 'quick')   # quick run 
 </code></pre>
 
 <p>And now let’s build into this map:</p>
 
-<pre class="codeDL"><code>build.build()    # build a model into current map
+<pre class="codeDL"><code>build.build()   # build and refine 1 cycle
 </code></pre>
 
 <p>We can write out the resulting model and the map that was used:</p>
